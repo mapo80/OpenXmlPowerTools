@@ -141,7 +141,7 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
 
             Assert.True(File.Exists(expectFullPath), $"ExpectReferenceImagePath not found \n{expectFullPath}\n copy over \n{actualFullPath}\n if this is a new test case.");
 
-            if (ImageSharpCompare.ImageSharpCompare.ImagesAreEqual(actualFullPath, expectFullPath))
+            if (ImageSharpCompare.ImageSharpCompare.ImagesAreEqual(actualFullPath, expectFullPath, imageSizeMayDiffer ? ImageSharpCompare.ResizeOption.Resize : ImageSharpCompare.ResizeOption.DontResize))
             {
                 return;
             }
@@ -151,13 +151,8 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
             var allowedDiffImage = $"{expectFullPath}.diff.{osSpecificDiffFileSuffix}.png";
             var newDiffImage = $"{actualFullPath}.diff.png";
 
-            if (!ImageSharpCompare.ImageSharpCompare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
+            if (!imageSizeMayDiffer && !ImageSharpCompare.ImageSharpCompare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
             {
-                if (imageSizeMayDiffer)
-                {
-                    return;
-                }
-
                 // Uncomment following line to create or update a allowed diff file
                 // File.Copy(actualFullPath, expectFullPath, true);
 
@@ -176,12 +171,7 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
 
             if (File.Exists(allowedDiffImage))
             {
-                if (!ImageSharpCompare.ImageSharpCompare.ImagesHaveEqualSize(actualFullPath, allowedDiffImage))
-                {
-                    Assert.True(false, $"AllowedDiffImage Dimension differs from allowed \nReplace {allowedDiffImage} with {actualFullPath}.");
-                }
-
-                var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage);
+                var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, imageSizeMayDiffer ? ImageSharpCompare.ResizeOption.Resize : ImageSharpCompare.ResizeOption.DontResize);
 
                 var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
                 if (pixelErrorCountAboveExpectedWithDiff)
