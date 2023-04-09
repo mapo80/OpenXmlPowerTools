@@ -141,7 +141,8 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
 
             Assert.True(File.Exists(expectFullPath), $"ExpectReferenceImagePath not found \n{expectFullPath}\n copy over \n{actualFullPath}\n if this is a new test case.");
 
-            if (ImageSharpCompare.ImageSharpCompare.ImagesAreEqual(actualFullPath, expectFullPath, imageSizeMayDiffer ? ImageSharpCompare.ResizeOption.Resize : ImageSharpCompare.ResizeOption.DontResize))
+            var resizeOption = imageSizeMayDiffer ? ImageSharpCompare.ResizeOption.Resize : ImageSharpCompare.ResizeOption.DontResize;
+            if (ImageSharpCompare.ImageSharpCompare.ImagesAreEqual(actualFullPath, expectFullPath, resizeOption))
             {
                 return;
             }
@@ -160,7 +161,7 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
                 Assert.Fail($"Actual Dimension differs from expected \nExpected {expectFullPath}\ndiffers to actual {actualFullPath} \nReplace {expectFullPath} with the new value.");
             }
 
-            using (var maskImage = ImageSharpCompare.ImageSharpCompare.CalcDiffMaskImage(actualFullPath, expectFullPath))
+            using (var maskImage = ImageSharpCompare.ImageSharpCompare.CalcDiffMaskImage(actualFullPath, expectFullPath, resizeOption))
             {
                 using var fs = new FileStream(newDiffImage, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                 await maskImage.SaveAsync(fs, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
@@ -171,7 +172,7 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
 
             if (File.Exists(allowedDiffImage))
             {
-                var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, imageSizeMayDiffer ? ImageSharpCompare.ResizeOption.Resize : ImageSharpCompare.ResizeOption.DontResize);
+                var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption);
 
                 var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
                 if (pixelErrorCountAboveExpectedWithDiff)
@@ -182,7 +183,7 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
                 return;
             }
 
-            var result = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath);
+            var result = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, resizeOption);
 
             var pixelErrorCountAboveExpected = result.PixelErrorCount > allowedPixelErrorCount;
             if (pixelErrorCountAboveExpected)
