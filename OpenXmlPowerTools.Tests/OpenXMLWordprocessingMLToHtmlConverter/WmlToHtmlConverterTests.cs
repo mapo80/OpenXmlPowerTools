@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit;
 
-namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
+namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 {
     public class WmlToHtmlConverterTests
     {
@@ -70,26 +70,26 @@ namespace Codeuctivity.Tests.OpenXMLWordprocessingMLToHtmlConverter
         [InlineData("HC060-Image-with-Hyperlink.docx", 0, false)]
         [InlineData("HC061-Hyperlink-in-Field.docx", 0, false)]
         [InlineData("Tabs.docx", 0, false)]
-        public async Task HC001(string name, int expectedPixeNoise, bool imageSizeMayDiffer)
+        public async Task HC001(string name, int expectedPixelNoise, bool imageSizeMayDiffer)
         {
             var sourceDir = new DirectoryInfo("../../../../TestFiles/");
             var sourceDocx = new FileInfo(Path.Combine(sourceDir.FullName, name));
             var settings = new WmlToHtmlConverterSettings(sourceDocx.FullName);
 
             var oxPtConvertedDestHtml = new FileInfo(Path.Combine(TestUtil.TempDir.FullName, sourceDocx.Name.Replace(".docx", "-3-OxPt.html")));
-            await ConvertToHtml(sourceDocx, oxPtConvertedDestHtml, settings, expectedPixeNoise, imageSizeMayDiffer);
+            await ConvertToHtml(sourceDocx, oxPtConvertedDestHtml, settings, expectedPixelNoise, imageSizeMayDiffer);
         }
 
         [Theory]
         [InlineData("HC006-Test-01.docx", 80000)]
-        public async Task HC002_NoCssClasses(string name, int expectedPixeNoise)
+        public async Task HC002_NoCssClasses(string name, int expectedPixelNoise)
         {
             var sourceDir = new DirectoryInfo("../../../../TestFiles/");
             var sourceDocx = new FileInfo(Path.Combine(sourceDir.FullName, name));
             var settings = new WmlToHtmlConverterSettings(sourceDocx.FullName, new ImageHandler(), new TextDummyHandler(), new SymbolHandler(), new BreakHandler(), new FontHandler(), false);
 
             var oxPtConvertedDestHtml = new FileInfo(Path.Combine(TestUtil.TempDir.FullName, sourceDocx.Name.Replace(".docx", "-5-OxPt-No-CSS-Classes.html")));
-            await ConvertToHtml(sourceDocx, oxPtConvertedDestHtml, settings, expectedPixeNoise, false);
+            await ConvertToHtml(sourceDocx, oxPtConvertedDestHtml, settings, expectedPixelNoise, false);
         }
 
         private static async Task ConvertToHtml(FileInfo sourceDocx, FileInfo destFileName, WmlToHtmlConverterSettings settings, int expectedPixeNoise, bool imageSizeMayDiffer)

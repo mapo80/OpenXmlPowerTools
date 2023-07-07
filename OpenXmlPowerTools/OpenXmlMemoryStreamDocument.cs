@@ -52,7 +52,6 @@ namespace Codeuctivity.OpenXmlPowerTools
                     new XAttribute(XNamespace.Xmlns + "w", W.w),
                     new XAttribute(XNamespace.Xmlns + "r", R.r),
                     new XElement(W.body))));
-            doc.Close();
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
@@ -68,7 +67,6 @@ namespace Codeuctivity.OpenXmlPowerTools
                     new XAttribute("xmlns", ns),
                     new XAttribute(XNamespace.Xmlns + "r", relationshipsns),
                     new XElement(ns + "sheets"))));
-            doc.Close();
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
@@ -88,15 +86,13 @@ namespace Codeuctivity.OpenXmlPowerTools
                     new XElement(ns + "sldMasterIdLst"),
                     new XElement(ns + "sldIdLst"),
                     new XElement(ns + "notesSz", new XAttribute("cx", "6858000"), new XAttribute("cy", "9144000")))));
-            doc.Close();
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
         public static OpenXmlMemoryStreamDocument CreatePackage()
         {
             var stream = new MemoryStream();
-            var package = Package.Open(stream, FileMode.Create);
-            package.Close();
+            using var package = Package.Open(stream, FileMode.Create);
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
