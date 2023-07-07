@@ -52,6 +52,7 @@ namespace Codeuctivity.OpenXmlPowerTools
                     new XAttribute(XNamespace.Xmlns + "w", W.w),
                     new XAttribute(XNamespace.Xmlns + "r", R.r),
                     new XElement(W.body))));
+            doc.Dispose();
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
@@ -67,6 +68,7 @@ namespace Codeuctivity.OpenXmlPowerTools
                     new XAttribute("xmlns", ns),
                     new XAttribute(XNamespace.Xmlns + "r", relationshipsns),
                     new XElement(ns + "sheets"))));
+            doc.Dispose();
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
@@ -86,6 +88,7 @@ namespace Codeuctivity.OpenXmlPowerTools
                     new XElement(ns + "sldMasterIdLst"),
                     new XElement(ns + "sldIdLst"),
                     new XElement(ns + "notesSz", new XAttribute("cx", "6858000"), new XAttribute("cy", "9144000")))));
+            doc.Dispose();
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
@@ -93,6 +96,7 @@ namespace Codeuctivity.OpenXmlPowerTools
         {
             var stream = new MemoryStream();
             using var package = Package.Open(stream, FileMode.Create);
+            package.Close();
             return new OpenXmlMemoryStreamDocument(stream);
         }
 
@@ -154,10 +158,10 @@ namespace Codeuctivity.OpenXmlPowerTools
 
         public Type? GetDocumentType()
         {
-            var relationship = DocPackage.GetRelationshipsByType("http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument").FirstOrDefault();
+            var relationship = DocPackage?.GetRelationshipsByType("http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument").FirstOrDefault();
             if (relationship == null)
             {
-                relationship = DocPackage.GetRelationshipsByType("http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument").FirstOrDefault();
+                relationship = DocPackage?.GetRelationshipsByType("http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument").FirstOrDefault();
             }
 
             if (relationship == null)
@@ -193,28 +197,28 @@ namespace Codeuctivity.OpenXmlPowerTools
 
         public OpenXmlPowerToolsDocument GetModifiedDocument()
         {
-            DocPackage.Close();
+            DocPackage?.Close();
             DocPackage = null;
             return new OpenXmlPowerToolsDocument(Document?.FileName, DocMemoryStream);
         }
 
         public WmlDocument GetModifiedWmlDocument()
         {
-            DocPackage.Close();
+            DocPackage?.Close();
             DocPackage = null;
             return new WmlDocument(Document?.FileName, DocMemoryStream);
         }
 
         public SmlDocument GetModifiedSmlDocument()
         {
-            DocPackage.Close();
+            DocPackage?.Close();
             DocPackage = null;
             return new SmlDocument(Document?.FileName, DocMemoryStream);
         }
 
         public PmlDocument GetModifiedPmlDocument()
         {
-            DocPackage.Close();
+            DocPackage?.Close();
             DocPackage = null;
             return new PmlDocument(Document?.FileName, DocMemoryStream);
         }

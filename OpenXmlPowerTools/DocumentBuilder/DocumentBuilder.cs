@@ -25,6 +25,7 @@ namespace Codeuctivity.OpenXmlPowerTools.DocumentBuilder
             using (var output = streamDoc.GetWordprocessingDocument())
             {
                 BuildDocument(sources, output, new DocumentBuilderSettings());
+                output.Dispose();
             }
             streamDoc.GetModifiedDocument().SaveAs(fileName);
         }
@@ -35,6 +36,7 @@ namespace Codeuctivity.OpenXmlPowerTools.DocumentBuilder
             using (var output = streamDoc.GetWordprocessingDocument())
             {
                 BuildDocument(sources, output, settings);
+                output.Dispose();
             }
             streamDoc.GetModifiedDocument().SaveAs(fileName);
         }
@@ -45,6 +47,7 @@ namespace Codeuctivity.OpenXmlPowerTools.DocumentBuilder
             using (var output = streamDoc.GetWordprocessingDocument())
             {
                 BuildDocument(sources, output, new DocumentBuilderSettings());
+                output.Dispose();
             }
             return streamDoc.GetModifiedWmlDocument();
         }
@@ -55,6 +58,7 @@ namespace Codeuctivity.OpenXmlPowerTools.DocumentBuilder
             using (var output = streamDoc.GetWordprocessingDocument())
             {
                 BuildDocument(sources, output, settings);
+                output.Dispose();
             }
             return streamDoc.GetModifiedWmlDocument();
         }
