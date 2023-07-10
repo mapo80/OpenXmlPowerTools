@@ -160,37 +160,43 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                 SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
                 Assert.Fail($"Actual Dimension differs from expected \nExpected {expectFullPath}\ndiffers to actual {actualFullPath} \nReplace {expectFullPath} with the new value.");
             }
-
-            using (var maskImage = ImageSharpCompare.ImageSharpCompare.CalcDiffMaskImage(actualFullPath, expectFullPath, ImageSharpCompare.ResizeOption.Resize))
+            try
             {
-                using var fs = new FileStream(newDiffImage, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                await maskImage.SaveAsync(fs, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
-            }
+                using (var maskImage = ImageSharpCompare.ImageSharpCompare.CalcDiffMaskImage(actualFullPath, expectFullPath, ImageSharpCompare.ResizeOption.Resize))
+                {
+                    using var fs = new FileStream(newDiffImage, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    await maskImage.SaveAsync(fs, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+                }
 
-            // Uncomment following line to create or update a allowed diff file
-            //File.Copy(actualFullPath, allowedDiffImage, true);
+                // Uncomment following line to create or update a allowed diff file
+                //File.Copy(actualFullPath, allowedDiffImage, true);
 
-            if (File.Exists(allowedDiffImage))
-            {
-                var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption);
+                if (File.Exists(allowedDiffImage))
+                {
+                    var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption);
 
-                var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
-                if (pixelErrorCountAboveExpectedWithDiff)
+                    var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
+                    if (pixelErrorCountAboveExpectedWithDiff)
+                    {
+                        SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
+                        Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {resultWithAllowedDiff.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n diff is {newDiffImage}\n");
+                    }
+                    return;
+                }
+
+                var result = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, resizeOption);
+
+                var pixelErrorCountAboveExpected = result.PixelErrorCount > allowedPixelErrorCount;
+                if (pixelErrorCountAboveExpected)
                 {
                     SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
-                    Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {resultWithAllowedDiff.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n diff is {newDiffImage}\n");
+
+                    Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {result.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n Diff is {newDiffImage} \nReplace {actualFullPath} with the new value or store the diff as {allowedDiffImage}.");
                 }
-                return;
             }
-
-            var result = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, resizeOption);
-
-            var pixelErrorCountAboveExpected = result.PixelErrorCount > allowedPixelErrorCount;
-            if (pixelErrorCountAboveExpected)
+            finally
             {
                 SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
-
-                Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {result.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n Diff is {newDiffImage} \nReplace {actualFullPath} with the new value or store the diff as {allowedDiffImage}.");
             }
         }
 
