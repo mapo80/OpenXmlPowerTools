@@ -28,5 +28,4 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenXmlPowerTools\OpenXmlPowerTools.csproj" />
   </ItemGroup>
-
 </Project>
