@@ -194,7 +194,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                     Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {result.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n Diff is {newDiffImage} \nReplace {actualFullPath} with the new value or store the diff as {allowedDiffImage}.");
                 }
             }
-            catch
+            catch (System.Exception ex) when (!(ex is Xunit.Sdk.FailException))
             {
                 SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
             }
