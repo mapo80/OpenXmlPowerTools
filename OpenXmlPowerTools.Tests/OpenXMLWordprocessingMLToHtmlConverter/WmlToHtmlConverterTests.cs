@@ -25,7 +25,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
         [InlineData("HC007-Test-02.docx", 15000, true)]
         [InlineData("HC008-Test-03.docx", 0, false)]
         [InlineData("HC009-Test-04.docx", 0, false)]
-        [InlineData("HC010-Test-05.docx", 0, true)]
+        [InlineData("HC010-Test-05.docx", 24000, true)]
         [InlineData("HC011-Test-06.docx", 80000, false)]
         [InlineData("HC012-Test-07.docx", 10, false)]
         [InlineData("HC013-Test-08.docx", 0, false)]
