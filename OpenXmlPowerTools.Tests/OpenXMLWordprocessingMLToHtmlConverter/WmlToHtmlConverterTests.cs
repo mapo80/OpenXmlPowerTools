@@ -1,6 +1,8 @@
 ﻿using Codeuctivity.HtmlRenderer;
 using Codeuctivity.OpenXmlPowerTools.OpenXMLWordprocessingMLToHtmlConverter;
+using Codeuctivity.SkiaSharpCompare;
 using DocumentFormat.OpenXml.Packaging;
+using SkiaSharp;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -175,8 +177,8 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
             Assert.True(File.Exists(expectFullPath), $"ExpectReferenceImagePath not found \n{expectFullPath}\n copy over \n{actualFullPath}\n if this is a new test case.");
 
-            var resizeOption = imageSizeMayDiffer ? ImageSharpCompare.ResizeOption.Resize : ImageSharpCompare.ResizeOption.DontResize;
-            if (ImageSharpCompare.ImageSharpCompare.ImagesAreEqual(actualFullPath, expectFullPath, resizeOption))
+            var resizeOption = imageSizeMayDiffer ? ResizeOption.Resize : ResizeOption.DontResize;
+            if (Compare.ImagesAreEqual(actualFullPath, expectFullPath, resizeOption))
             {
                 return;
             }
@@ -186,7 +188,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             var allowedDiffImage = $"{expectFullPath}.diff.{osSpecificDiffFileSuffix}.png";
             var newDiffImage = $"{actualFullPath}.diff.png";
 
-            if (!imageSizeMayDiffer && !ImageSharpCompare.ImageSharpCompare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
+            if (!imageSizeMayDiffer && !Compare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
             {
                 // Uncomment following line to create or update a allowed diff file
                 // File.Copy(actualFullPath, expectFullPath, true);
@@ -196,10 +198,10 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             }
             try
             {
-                using (var maskImage = ImageSharpCompare.ImageSharpCompare.CalcDiffMaskImage(actualFullPath, expectFullPath, ImageSharpCompare.ResizeOption.Resize))
+                using (var maskImage = Compare.CalcDiffMaskImage(actualFullPath, expectFullPath, ResizeOption.Resize))
                 {
-                    using var fs = new FileStream(newDiffImage, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                    await maskImage.SaveAsync(fs, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+                    var png = maskImage.Encode(SKEncodedImageFormat.Png, 100);
+                    await File.WriteAllBytesAsync(newDiffImage, png.ToArray());
                 }
 
                 // Uncomment following line to create or update a allowed diff file
@@ -207,7 +209,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
                 if (File.Exists(allowedDiffImage))
                 {
-                    var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption);
+                    var resultWithAllowedDiff = Compare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption);
 
                     var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
                     if (pixelErrorCountAboveExpectedWithDiff)
@@ -218,7 +220,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                     return;
                 }
 
-                var result = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, resizeOption);
+                var result = Compare.CalcDiff(actualFullPath, expectFullPath, resizeOption);
 
                 var pixelErrorCountAboveExpected = result.PixelErrorCount > allowedPixelErrorCount;
                 if (pixelErrorCountAboveExpected)
