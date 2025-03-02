@@ -188,20 +188,21 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             var allowedDiffImage = $"{expectFullPath}.diff.{osSpecificDiffFileSuffix}.png";
             var newDiffImageFileName = $"{actualFullPath}.diff.png";
 
-            if (!imageSizeMayDiffer && !Compare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
-            {
-                // Uncomment following line to create or update a allowed diff file
-                //File.Copy(actualFullPath, expectFullPath, true);
-
-                SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
-                Assert.Fail($"Actual Dimension differs from expected \nExpected {expectFullPath}\ndiffers to actual {actualFullPath} \nReplace {expectFullPath} with the new value.");
-            }
             try
             {
                 using (var maskImage = Compare.CalcDiffMaskImage(actualFullPath, expectFullPath, ResizeOption.Resize, transparencyOptions: TransparencyOptions.CompareAlphaChannel))
                 {
                     var png = maskImage.Encode(SKEncodedImageFormat.Png, 100);
                     await File.WriteAllBytesAsync(newDiffImageFileName, png.ToArray());
+                }
+
+                if (!imageSizeMayDiffer && !Compare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
+                {
+                    // Uncomment following line to create or update a allowed diff file
+                    //File.Copy(actualFullPath, expectFullPath, true);
+
+                    SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath, newDiffImageFileName);
+                    Assert.Fail($"Actual dimension differs from expected \nExpected {expectFullPath}\ndiffers to actual {actualFullPath} \nReplace {expectFullPath} with the new value, or configure the test to expect different dimensions.");
                 }
 
                 // Uncomment following line to create or update a allowed diff file
@@ -236,7 +237,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             }
         }
 
-        private static void SaveToGithubActionsPickupTestresultsDirectory(string actualFullPath, string expectFullPath, string? newDiffImageFileName = null)
+        private static void SaveToGithubActionsPickupTestresultsDirectory(string actualFullPath, string expectFullPath, string newDiffImageFileName = null)
         {
             var fileName = Path.GetFileName(actualFullPath);
             var expectFullDirectory = Path.GetDirectoryName(expectFullPath);
@@ -252,11 +253,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
             File.Copy(actualFullPath, Path.Combine(testResultDirectoryActual, fileName), true);
             File.Copy(expectFullPath, Path.Combine(testResultDirectoryExpected, fileName), true);
-
-            if (newDiffImageFileName != null)
-            {
-                File.Copy(newDiffImageFileName, Path.Combine(testResultDirectoryExpected, newDiffImageFileName), true);
-            }
+            File.Copy(newDiffImageFileName, Path.Combine(testResultDirectoryDiff, newDiffImageFileName), true);
 
             static void CreateDirectory(string testResultDirectory)
             {
