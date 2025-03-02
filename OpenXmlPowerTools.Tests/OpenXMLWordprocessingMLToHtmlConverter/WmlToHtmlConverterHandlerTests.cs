@@ -59,7 +59,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             expectedImage.Position = 0;
             actualImage.Position = 0;
 
-            Assert.True(Compare.ImagesAreEqual(expectedImage, actualImage));
+            Assert.True(Compare.ImagesAreEqual(expectedImage, actualImage, transparencyOptions: TransparencyOptions.CompareAlphaChannel));
         }
 
         [Fact]

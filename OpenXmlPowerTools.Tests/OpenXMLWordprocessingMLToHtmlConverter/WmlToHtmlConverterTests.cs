@@ -178,7 +178,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             Assert.True(File.Exists(expectFullPath), $"ExpectReferenceImagePath not found \n{expectFullPath}\n copy over \n{actualFullPath}\n if this is a new test case.");
 
             var resizeOption = imageSizeMayDiffer ? ResizeOption.Resize : ResizeOption.DontResize;
-            if (Compare.ImagesAreEqual(actualFullPath, expectFullPath, resizeOption))
+            if (Compare.ImagesAreEqual(actualFullPath, expectFullPath, resizeOption, transparencyOptions: TransparencyOptions.CompareAlphaChannel))
             {
                 return;
             }
@@ -198,7 +198,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             }
             try
             {
-                using (var maskImage = Compare.CalcDiffMaskImage(actualFullPath, expectFullPath, ResizeOption.Resize))
+                using (var maskImage = Compare.CalcDiffMaskImage(actualFullPath, expectFullPath, ResizeOption.Resize, transparencyOptions: TransparencyOptions.CompareAlphaChannel))
                 {
                     var png = maskImage.Encode(SKEncodedImageFormat.Png, 100);
                     await File.WriteAllBytesAsync(newDiffImage, png.ToArray());
@@ -209,7 +209,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
                 if (File.Exists(allowedDiffImage))
                 {
-                    var resultWithAllowedDiff = Compare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption);
+                    var resultWithAllowedDiff = Compare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption, transparencyOptions: TransparencyOptions.CompareAlphaChannel);
 
                     var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
                     if (pixelErrorCountAboveExpectedWithDiff)
@@ -220,7 +220,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                     return;
                 }
 
-                var result = Compare.CalcDiff(actualFullPath, expectFullPath, resizeOption);
+                var result = Compare.CalcDiff(actualFullPath, expectFullPath, resizeOption, transparencyOptions: TransparencyOptions.CompareAlphaChannel);
 
                 var pixelErrorCountAboveExpected = result.PixelErrorCount > allowedPixelErrorCount;
                 if (pixelErrorCountAboveExpected)
