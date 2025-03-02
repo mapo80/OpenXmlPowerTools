@@ -1,6 +1,8 @@
 ﻿using Codeuctivity.HtmlRenderer;
 using Codeuctivity.OpenXmlPowerTools.OpenXMLWordprocessingMLToHtmlConverter;
+using Codeuctivity.SkiaSharpCompare;
 using DocumentFormat.OpenXml.Packaging;
+using SkiaSharp;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -16,44 +18,44 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
         // dir | % { '[InlineData("' + $_.Name + '")]' } | clip
 
         [Theory]
-        [InlineData("HC001-5DayTourPlanTemplate.docx", 10000, false)]
-        [InlineData("HC002-Hebrew-01.docx", 1593, false)]
+        [InlineData("HC001-5DayTourPlanTemplate.docx", 0, false)]
+        [InlineData("HC002-Hebrew-01.docx", 0, false)]
         [InlineData("HC003-Hebrew-02.docx", 0, false)]
         [InlineData("HC004-ResumeTemplate.docx", 0, false)]
         [InlineData("HC005-TaskPlanTemplate.docx", 0, false)]
-        [InlineData("HC006-Test-01.docx", 80000, false)]
-        [InlineData("HC007-Test-02.docx", 15000, true)]
+        [InlineData("HC006-Test-01.docx", 0, false)]
+        [InlineData("HC007-Test-02.docx", 0, true)]
         [InlineData("HC008-Test-03.docx", 0, false)]
         [InlineData("HC009-Test-04.docx", 0, false)]
-        [InlineData("HC010-Test-05.docx", 240000, true)]
-        [InlineData("HC011-Test-06.docx", 80000, false)]
-        [InlineData("HC012-Test-07.docx", 10, false)]
+        [InlineData("HC010-Test-05.docx", 0, true)]
+        [InlineData("HC011-Test-06.docx", 0, false)]
+        [InlineData("HC012-Test-07.docx", 0, false)]
         [InlineData("HC013-Test-08.docx", 0, false)]
-        [InlineData("HC014-RTL-Table-01.docx", 20000, false)]
+        [InlineData("HC014-RTL-Table-01.docx", 0, false)]
         [InlineData("HC015-Vertical-Spacing-atLeast.docx", 0, false)]
         [InlineData("HC016-Horizontal-Spacing-firstLine.docx", 0, false)]
-        [InlineData("HC017-Vertical-Alignment-Cell-01.docx", 25000, false)]
+        [InlineData("HC017-Vertical-Alignment-Cell-01.docx", 0, false)]
         [InlineData("HC018-Vertical-Alignment-Para-01.docx", 0, false)]
         [InlineData("HC019-Hidden-Run.docx", 0, false)]
         [InlineData("HC020-Small-Caps.docx", 0, false)]
         [InlineData("HC021-Symbols.docx", 0, false)]
-        [InlineData("HC022-Table-Of-Contents.docx", 10, false)]
+        [InlineData("HC022-Table-Of-Contents.docx", 0, false)]
         [InlineData("HC023-Hyperlink.docx", 0, false)]
         [InlineData("HC024-Tabs-01.docx", 0, false)]
         [InlineData("HC025-Tabs-02.docx", 0, false)]
         [InlineData("HC026-Tabs-03.docx", 0, false)]
         [InlineData("HC027-Tabs-04.docx", 0, false)]
         [InlineData("HC028-No-Break-Hyphen.docx", 0, false)]
-        [InlineData("HC029-Table-Merged-Cells.docx", 30000, false)]
+        [InlineData("HC029-Table-Merged-Cells.docx", 0, false)]
         [InlineData("HC030-Content-Controls.docx", 0, false)]
-        [InlineData("HC031-Complicated-Document.docx", 5000, false)]
+        [InlineData("HC031-Complicated-Document.docx", 0, false)]
         [InlineData("HC032-Named-Color.docx", 0, false)]
-        [InlineData("HC033-Run-With-Border.docx", 5000, false)]
+        [InlineData("HC033-Run-With-Border.docx", 0, false)]
         [InlineData("HC034-Run-With-Position.docx", 0, false)]
         [InlineData("HC035-Strike-Through.docx", 0, false)]
         [InlineData("HC036-Super-Script.docx", 0, false)]
         [InlineData("HC037-Sub-Script.docx", 0, false)]
-        [InlineData("HC038-Conflicting-Border-Weight.docx", 10000, false)]
+        [InlineData("HC038-Conflicting-Border-Weight.docx", 0, false)]
         [InlineData("HC039-Bold.docx", 0, false)]
         [InlineData("HC040-Hyperlink-Fieldcode-01.docx", 0, false)]
         [InlineData("HC041-Hyperlink-Fieldcode-02.docx", 0, false)]
@@ -65,8 +67,8 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
         [InlineData("HC047-No-Section.docx", 0, false)]
         [InlineData("HC048-Excerpt.docx", 0, false)]
         [InlineData("HC049-Borders.docx", 0, false)]
-        [InlineData("HC050-Shaded-Text-01.docx", 15000, false)]
-        [InlineData("HC051-Shaded-Text-02.docx", 15000, false)]
+        [InlineData("HC050-Shaded-Text-01.docx", 0, false)]
+        [InlineData("HC051-Shaded-Text-02.docx", 0, false)]
         [InlineData("HC052-SmartArt.docx", 0, false)]
         [InlineData("HC053-Headings.docx", 0, false)]
         [InlineData("HC055-GoogleDocsExport.docx", 0, false)]
@@ -84,7 +86,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
         }
 
         [Theory]
-        [InlineData("HC006-Test-01.docx", 80000)]
+        [InlineData("HC006-Test-01.docx", 0)]
         public async Task HC002_NoCssClasses(string name, int expectedPixelNoise)
         {
             var sourceDir = new DirectoryInfo("../../../../TestFiles/");
@@ -175,8 +177,8 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
             Assert.True(File.Exists(expectFullPath), $"ExpectReferenceImagePath not found \n{expectFullPath}\n copy over \n{actualFullPath}\n if this is a new test case.");
 
-            var resizeOption = imageSizeMayDiffer ? ImageSharpCompare.ResizeOption.Resize : ImageSharpCompare.ResizeOption.DontResize;
-            if (ImageSharpCompare.ImageSharpCompare.ImagesAreEqual(actualFullPath, expectFullPath, resizeOption))
+            var resizeOption = imageSizeMayDiffer ? ResizeOption.Resize : ResizeOption.DontResize;
+            if (Compare.ImagesAreEqual(actualFullPath, expectFullPath, resizeOption, transparencyOptions: TransparencyOptions.CompareAlphaChannel))
             {
                 return;
             }
@@ -186,7 +188,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             var allowedDiffImage = $"{expectFullPath}.diff.{osSpecificDiffFileSuffix}.png";
             var newDiffImage = $"{actualFullPath}.diff.png";
 
-            if (!imageSizeMayDiffer && !ImageSharpCompare.ImageSharpCompare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
+            if (!imageSizeMayDiffer && !Compare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
             {
                 // Uncomment following line to create or update a allowed diff file
                 // File.Copy(actualFullPath, expectFullPath, true);
@@ -196,10 +198,10 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             }
             try
             {
-                using (var maskImage = ImageSharpCompare.ImageSharpCompare.CalcDiffMaskImage(actualFullPath, expectFullPath, ImageSharpCompare.ResizeOption.Resize))
+                using (var maskImage = Compare.CalcDiffMaskImage(actualFullPath, expectFullPath, ResizeOption.Resize, transparencyOptions: TransparencyOptions.CompareAlphaChannel))
                 {
-                    using var fs = new FileStream(newDiffImage, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                    await maskImage.SaveAsync(fs, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+                    var png = maskImage.Encode(SKEncodedImageFormat.Png, 100);
+                    await File.WriteAllBytesAsync(newDiffImage, png.ToArray());
                 }
 
                 // Uncomment following line to create or update a allowed diff file
@@ -207,7 +209,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
                 if (File.Exists(allowedDiffImage))
                 {
-                    var resultWithAllowedDiff = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption);
+                    var resultWithAllowedDiff = Compare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption, transparencyOptions: TransparencyOptions.CompareAlphaChannel);
 
                     var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
                     if (pixelErrorCountAboveExpectedWithDiff)
@@ -218,7 +220,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                     return;
                 }
 
-                var result = ImageSharpCompare.ImageSharpCompare.CalcDiff(actualFullPath, expectFullPath, resizeOption);
+                var result = Compare.CalcDiff(actualFullPath, expectFullPath, resizeOption, transparencyOptions: TransparencyOptions.CompareAlphaChannel);
 
                 var pixelErrorCountAboveExpected = result.PixelErrorCount > allowedPixelErrorCount;
                 if (pixelErrorCountAboveExpected)
