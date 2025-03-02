@@ -191,7 +191,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             if (!imageSizeMayDiffer && !Compare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
             {
                 // Uncomment following line to create or update a allowed diff file
-                // File.Copy(actualFullPath, expectFullPath, true);
+                //File.Copy(actualFullPath, expectFullPath, true);
 
                 SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
                 Assert.Fail($"Actual Dimension differs from expected \nExpected {expectFullPath}\ndiffers to actual {actualFullPath} \nReplace {expectFullPath} with the new value.");
@@ -227,7 +227,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                 {
                     SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
 
-                    Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {result.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n Diff is {newDiffImage} \nReplace {actualFullPath} with the new value or store the diff as {allowedDiffImage}.");
+                    Assert.Fail($"Expected PixelErrorCount less or equal {allowedPixelErrorCount} but was {result.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n Diff is {newDiffImage} \nReplace {actualFullPath} with the new value or store the diff as {allowedDiffImage}.");
                 }
             }
             catch (System.Exception ex) when (!(ex is Xunit.Sdk.FailException))
