@@ -172,7 +172,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
             Assert.True(File.Exists(actualFullPath), $"actualImagePath not found {actualFullPath}");
 
-            //Uncomment following line to create or update expectation for new test cases
+            //Uncomment following line to create or update   expectation for new test cases
             //File.Copy(actualFullPath, expectFullPath, true);
 
             Assert.True(File.Exists(expectFullPath), $"ExpectReferenceImagePath not found \n{expectFullPath}\n copy over \n{actualFullPath}\n if this is a new test case.");
@@ -186,7 +186,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             var osSpecificDiffFileSuffix = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux" : "win";
 
             var allowedDiffImage = $"{expectFullPath}.diff.{osSpecificDiffFileSuffix}.png";
-            var newDiffImageFileNamePath = $"{actualFullPath}.diff.png";
+            var newDiffImageFileNamePath = $"{actualFullPath}.diff.{osSpecificDiffFileSuffix}.png";
 
             try
             {
