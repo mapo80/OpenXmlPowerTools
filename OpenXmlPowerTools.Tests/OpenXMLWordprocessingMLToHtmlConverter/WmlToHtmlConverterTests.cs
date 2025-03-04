@@ -172,7 +172,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
             Assert.True(File.Exists(actualFullPath), $"actualImagePath not found {actualFullPath}");
 
-            //Uncomment following line to create or update expectation for new test cases
+            //Uncomment following line to create or update   expectation for new test cases
             //File.Copy(actualFullPath, expectFullPath, true);
 
             Assert.True(File.Exists(expectFullPath), $"ExpectReferenceImagePath not found \n{expectFullPath}\n copy over \n{actualFullPath}\n if this is a new test case.");
@@ -186,22 +186,23 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             var osSpecificDiffFileSuffix = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux" : "win";
 
             var allowedDiffImage = $"{expectFullPath}.diff.{osSpecificDiffFileSuffix}.png";
-            var newDiffImage = $"{actualFullPath}.diff.png";
+            var newDiffImageFileName = Path.GetFileName(allowedDiffImage);
 
-            if (!imageSizeMayDiffer && !Compare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
-            {
-                // Uncomment following line to create or update a allowed diff file
-                // File.Copy(actualFullPath, expectFullPath, true);
-
-                SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
-                Assert.Fail($"Actual Dimension differs from expected \nExpected {expectFullPath}\ndiffers to actual {actualFullPath} \nReplace {expectFullPath} with the new value.");
-            }
             try
             {
                 using (var maskImage = Compare.CalcDiffMaskImage(actualFullPath, expectFullPath, ResizeOption.Resize, transparencyOptions: TransparencyOptions.CompareAlphaChannel))
                 {
                     var png = maskImage.Encode(SKEncodedImageFormat.Png, 100);
-                    await File.WriteAllBytesAsync(newDiffImage, png.ToArray());
+                    await File.WriteAllBytesAsync(newDiffImageFileName, png.ToArray());
+                }
+
+                if (!imageSizeMayDiffer && !Compare.ImagesHaveEqualSize(actualFullPath, expectFullPath))
+                {
+                    // Uncomment following line to create or update a allowed diff file
+                    //File.Copy(actualFullPath, expectFullPath, true);
+
+                    SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath, newDiffImageFileName);
+                    Assert.Fail($"Actual dimension differs from expected \nExpected {expectFullPath}\ndiffers to actual {actualFullPath} \nReplace {expectFullPath} with the new value, or configure the test to expect different dimensions.");
                 }
 
                 // Uncomment following line to create or update a allowed diff file
@@ -214,8 +215,8 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                     var pixelErrorCountAboveExpectedWithDiff = resultWithAllowedDiff.PixelErrorCount > allowedPixelErrorCount;
                     if (pixelErrorCountAboveExpectedWithDiff)
                     {
-                        SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
-                        Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {resultWithAllowedDiff.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n diff is {newDiffImage}\n");
+                        SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath, newDiffImageFileName);
+                        Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {resultWithAllowedDiff.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n diff is {newDiffImageFileName}\n");
                     }
                     return;
                 }
@@ -225,18 +226,18 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
                 var pixelErrorCountAboveExpected = result.PixelErrorCount > allowedPixelErrorCount;
                 if (pixelErrorCountAboveExpected)
                 {
-                    SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
+                    SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath, newDiffImageFileName);
 
-                    Assert.Fail($"Expected PixelErrorCount beyond {allowedPixelErrorCount} but was {result.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n Diff is {newDiffImage} \nReplace {actualFullPath} with the new value or store the diff as {allowedDiffImage}.");
+                    Assert.Fail($"Expected PixelErrorCount less or equal {allowedPixelErrorCount} but was {result.PixelErrorCount}\nExpected {expectFullPath}\ndiffers to actual {actualFullPath}\n Diff is {newDiffImageFileName} \nReplace {actualFullPath} with the new value or store the diff as {allowedDiffImage}.");
                 }
             }
             catch (System.Exception ex) when (!(ex is Xunit.Sdk.FailException))
             {
-                SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath);
+                SaveToGithubActionsPickupTestresultsDirectory(actualFullPath, expectFullPath, newDiffImageFileName);
             }
         }
 
-        private static void SaveToGithubActionsPickupTestresultsDirectory(string actualFullPath, string expectFullPath)
+        private static void SaveToGithubActionsPickupTestresultsDirectory(string actualFullPath, string expectFullPath, string newDiffImageFileName)
         {
             var fileName = Path.GetFileName(actualFullPath);
             var expectFullDirectory = Path.GetDirectoryName(expectFullPath);
@@ -244,12 +245,17 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
             var testResultDirectoryActual = Path.Combine(expectFullDirectoryFullPath, "../TestResult/Actual");
             var testResultDirectoryExpected = Path.Combine(expectFullDirectoryFullPath, "../TestResult/Expected");
+            var testResultDirectoryDiff = Path.Combine(expectFullDirectoryFullPath, "../TestResult/Diff");
             CreateDirectory(Path.Combine(expectFullDirectoryFullPath, "../TestResult"));
             CreateDirectory(testResultDirectoryActual);
             CreateDirectory(testResultDirectoryExpected);
+            CreateDirectory(testResultDirectoryDiff);
 
             File.Copy(actualFullPath, Path.Combine(testResultDirectoryActual, fileName), true);
             File.Copy(expectFullPath, Path.Combine(testResultDirectoryExpected, fileName), true);
+            var newDiffImageFullPath = Path.GetFullPath(newDiffImageFileName);
+            var destFileName = Path.Combine(testResultDirectoryDiff, Path.GetFileName(newDiffImageFullPath));
+            File.Copy(newDiffImageFullPath, destFileName, true);
 
             static void CreateDirectory(string testResultDirectory)
             {
