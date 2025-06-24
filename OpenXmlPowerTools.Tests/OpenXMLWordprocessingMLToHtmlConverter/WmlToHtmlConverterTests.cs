@@ -210,7 +210,7 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
 
                 if (allowedDiffInfo.DiffFileExists)
                 {
-                    var resultWithAllowedDiffPixelErrorCount = 0;
+                    var resultWithAllowedDiffPixelErrorCount = int.MaxValue;
                     foreach (var allowedDiffImage in allowedDiffInfo.ExistingDiffImageFilename)
                     {
                         var resultWithAllowedDiff = Compare.CalcDiff(actualFullPath, expectFullPath, allowedDiffImage, resizeOption, transparencyOptions: TransparencyOptions.CompareAlphaChannel);
