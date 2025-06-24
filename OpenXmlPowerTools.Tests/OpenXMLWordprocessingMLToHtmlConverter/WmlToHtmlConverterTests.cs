@@ -2,6 +2,7 @@
 using Codeuctivity.OpenXmlPowerTools.OpenXMLWordprocessingMLToHtmlConverter;
 using Codeuctivity.SkiaSharpCompare;
 using DocumentFormat.OpenXml.Packaging;
+using PuppeteerSharp;
 using SkiaSharp;
 using System;
 using System.IO;
@@ -160,7 +161,11 @@ namespace Codeuctivity.Tests.OpenXMLWordProcessingMLToHtmlConverter
             var actualFullPath = Path.GetFullPath(actualFilePath);
 
             Assert.True(File.Exists(actualFullPath), $"actualFilePath not found {actualFullPath}");
-            await using var chromiumRenderer = await Renderer.CreateAsync();
+            var launchOptions = new LaunchOptions
+            {
+                Args = new[] { "--force-device-scale-factor=1" },
+            };
+            await using var chromiumRenderer = await Renderer.CreateAsync(new BrowserFetcher(), launchOptions);
             var pathRasterizedHtml = actualFilePath + ".png";
             await chromiumRenderer.ConvertHtmlToPng(actualFilePath, pathRasterizedHtml);
 
