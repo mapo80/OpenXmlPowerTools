@@ -46,7 +46,7 @@
                 <PackageReference Include="SixLabors.Fonts" Version="1.0.1" />
                 <PackageReference Include="SkiaSharp" Version="3.119.1" />
                 <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
-                <PackageReference Include="SonarAnalyzer.CSharp" Version="10.7.0.110445">
+                <PackageReference Include="SonarAnalyzer.CSharp" Version="10.15.0.120848">
                         <PrivateAssets>all</PrivateAssets>
                         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
                 </PackageReference>
